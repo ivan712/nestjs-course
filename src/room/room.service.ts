@@ -1,41 +1,58 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { RoomModel, RoomModelDocument } from './room.model';
-import { Model } from 'mongoose';
-import { CreateRoomDto } from './dto/create-room.dto';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+
+import { CreateRoomDto } from './mongo/dto/create-room.dto';
 import { ROOM_ALREADY_EXIST, ROOM_NOT_FOUND } from './room.constants';
+import { RoomMongoRepository } from './mongo/room.mongoRepository';
+import { RoomRepository } from './core/room.repository';
+import { Room } from './core/room.entity';
 
 @Injectable()
 export class RoomService {
-    constructor(
-        @InjectModel(RoomModel.name) private roomModel: Model<RoomModelDocument>) { }
+  constructor(
+    @Inject(RoomMongoRepository) private roomMongoRepository: RoomRepository,
+  ) {}
 
-    async create(dto: CreateRoomDto): Promise<RoomModelDocument> {
-        const room = await this.getByNumber(dto.number);
-        if (room) {
-            throw new HttpException(ROOM_ALREADY_EXIST, HttpStatus.BAD_REQUEST);
-        }
-        return this.roomModel.create(dto);
+  async isRoomExist(number: number) {
+    const room = await this.getByNumber(number);
+    if (!room) {
+      throw new NotFoundException(ROOM_NOT_FOUND);
     }
 
-    async delete(number: number) {
-        const deletedDoc = await this.roomModel.findOneAndDelete({ number }).exec();
-        if (!deletedDoc) {
-            throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
-        }
+    return room;
+  }
 
-        return deletedDoc;
+  async create(dto: CreateRoomDto): Promise<Room> {
+    const room = await this.getByNumber(dto.number);
+    if (room) {
+      throw new HttpException(ROOM_ALREADY_EXIST, HttpStatus.BAD_REQUEST);
     }
+    return this.roomMongoRepository.create(dto);
+  }
 
-    async getByNumber(number: number) {
-        return this.roomModel.findOne({ number }).exec();
-    }
+  async delete(number: number): Promise<Room> {
+    const deletedDoc = await this.roomMongoRepository.delete(number);
+    if (!deletedDoc)
+      throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
 
-    async getAllRooms() {
-        return this.roomModel.find();
-    }
+    return deletedDoc;
+  }
 
-    async update(dto: CreateRoomDto): Promise<RoomModelDocument> {
-        return this.roomModel.findOneAndUpdate({ number: dto.number }, dto).exec();
-    }
+  async getByNumber(number: number): Promise<Room> {
+    return this.roomMongoRepository.getByNumber(number);
+  }
+
+  async getAllRooms(): Promise<Room[]> {
+    return this.roomMongoRepository.getAllRooms();
+  }
+
+  async update(dto: CreateRoomDto): Promise<Room> {
+    await this.isRoomExist(dto.number);
+    return this.roomMongoRepository.update(dto);
+  }
 }

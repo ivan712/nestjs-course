@@ -1,69 +1,61 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { ScheduleModel, ScheduleModelDocument } from './schedule.model';
-import { Model, Types } from 'mongoose';
-import { RoomModel, RoomModelDocument } from 'src/room/room.model';
-import { CreateScheduleDto } from './dto/create-schedule.dto';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { CreateScheduleDto } from './mongo/dto/create-schedule.dto';
 import { RoomService } from 'src/room/room.service';
-import { ROOM_NOT_FOUND } from 'src/room/room.constants';
 import { SCHEDULE_ALREDY_EXIST, SCHEDULE_NOT_FOUND } from './schedule.constant';
+import { ScheduleMongoRepository } from './mongo/schedule.mongoRepository';
+import { ScheduleRepository } from './core/schedule.repository';
+import { Schedule } from './core/schedule.entity';
+import { IScheduleExtended } from './interfaces/IScheduleExtended';
 
 @Injectable()
 export class ScheduleService {
-    constructor(
-        @InjectModel(ScheduleModel.name) private scheduleModel: Model<ScheduleModelDocument>,
-        @Inject(RoomService) private roomService: RoomService
-    ) { }
+  constructor(
+    @Inject(RoomService) private roomService: RoomService,
+    @Inject(ScheduleMongoRepository)
+    private scheduleRepository: ScheduleRepository,
+  ) {}
 
-    private async isRoomExist(number: number) {
-        const room = await this.roomService.getByNumber(number);
-        if (!room) {
-            throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
-        }
+  async get(dto: CreateScheduleDto): Promise<IScheduleExtended | null> {
+    const room = await this.roomService.isRoomExist(dto.room);
+    return this.scheduleRepository.get({ roomId: room.id, date: dto.date });
+  }
 
-        return room;
+  async create(dto: CreateScheduleDto): Promise<Schedule> {
+    const room = await this.roomService.isRoomExist(dto.room);
+    const schedule = await this.scheduleRepository.get({
+      roomId: room.id,
+      date: dto.date,
+    });
+    if (schedule) {
+      throw new BadRequestException(SCHEDULE_ALREDY_EXIST);
     }
 
+    return this.scheduleRepository.create({ roomId: room.id, date: dto.date });
+  }
 
-    private async isScheduleExist(room: Types.ObjectId, date: Date): Promise<void> {
-        const isScheduleExist = await this.scheduleModel.findOne({ room, date });
+  async delete(dto: CreateScheduleDto): Promise<Schedule> {
+    const room = await this.roomService.isRoomExist(dto.room);
+    const deletedDoc = await this.scheduleRepository.delete({
+      roomId: room.id,
+      date: dto.date,
+    });
+    if (!deletedDoc) throw new NotFoundException(SCHEDULE_NOT_FOUND);
 
-        if (isScheduleExist) {
-            throw new HttpException(SCHEDULE_ALREDY_EXIST, HttpStatus.BAD_REQUEST);
-        }
-    }
+    return deletedDoc;
+  }
 
+  async getRoomScheduleByNumber(number: number): Promise<Schedule[]> {
+    const room = await this.roomService.isRoomExist(number);
 
-    async create(dto: CreateScheduleDto): Promise<ScheduleModelDocument> {
-        const room = await this.isRoomExist(dto.room);
+    return this.scheduleRepository.getRoomScheduleById(room.id);
+  }
 
-        await this.isScheduleExist(room._id, dto.date);
-
-        return this.scheduleModel.create({ room: room._id, date: dto.date });
-    }
-
-
-    async delete(dto: CreateScheduleDto): Promise<ScheduleModelDocument> {
-        const room = await this.isRoomExist(dto.room);
-
-        const deletedDoc = await this.scheduleModel.findOneAndDelete({ room: room._id, date: dto.date }).exec();
-        if (!deletedDoc)
-            throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);
-
-        return deletedDoc;
-    }
-
-
-    async getRoomScheduleByNumber(number: number): Promise<ScheduleModelDocument[]> {
-        const room = await this.roomService.getByNumber(number);
-        if (!room) {
-            throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
-        }
-
-        return this.scheduleModel.find({ room: room._id });
-    }
-
-    async getAllSchedules(): Promise<ScheduleModelDocument[]> {
-        return this.scheduleModel.find();
-    }
+  async getAllSchedules(): Promise<IScheduleExtended[]> {
+    return this.scheduleRepository.getAllSchedules();
+  }
 }
