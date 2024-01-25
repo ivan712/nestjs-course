@@ -6,34 +6,36 @@ import {
   Param,
   ParseIntPipe,
   Post,
-  // UsePipes,
-  // ValidationPipe,
+  Query,
+  UseFilters,
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
-import { CreateScheduleDto } from './mongo/dto/create-schedule.dto';
+import { CreateScheduleDto } from './create-schedule.dto';
+import { HttpExceptionFilter } from '../exceptions/http-exception.filter';
+import { PaginationDto } from '../shared/pagination.dto';
 
 @Controller('schedule')
+@UseFilters(new HttpExceptionFilter())
 export class ScheduleController {
   constructor(private readonly scheduleService: ScheduleService) {}
 
-  // @UsePipes(new ValidationPipe())
   @Post()
   async create(@Body() dto: CreateScheduleDto) {
     return this.scheduleService.create(dto);
   }
 
-  @Delete()
-  async delete(@Body() dto: CreateScheduleDto) {
-    return this.scheduleService.delete(dto);
+  @Delete(':id')
+  async delete(@Param('id') id: string) {
+    return this.scheduleService.delete(id);
   }
 
   @Get()
-  async getAll() {
-    return this.scheduleService.getAllSchedules();
+  async getSchedules(@Query() query: PaginationDto) {
+    return this.scheduleService.getSchedules(query);
   }
 
   @Get('findByRoom/:number')
   async getByRoom(@Param('number', ParseIntPipe) number: number) {
-    return this.scheduleService.getRoomScheduleByNumber(number);
+    return this.scheduleService.getRoomSchedule(number);
   }
 }

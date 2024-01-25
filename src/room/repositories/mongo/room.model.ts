@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { RoomAmount, RoomType } from '../core/room.entity';
+import { RoomAmount, RoomType } from '../../room.entity';
 
 export type RoomModelDocument = HydratedDocument<RoomModel>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class RoomModel {
-  @Prop({ unique: true })
+  @Prop({ unique: true, partialFilterExpression: { deleted: false } })
   number: number;
 
   @Prop({ type: String, enum: RoomType, required: true })
@@ -17,6 +17,9 @@ export class RoomModel {
 
   @Prop({ required: true })
   hasSeeView: boolean;
+
+  @Prop({ required: true, default: false })
+  deleted: boolean;
 }
 
 export const RoomModelSchema = SchemaFactory.createForClass(RoomModel);

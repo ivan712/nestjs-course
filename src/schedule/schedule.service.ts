@@ -1,16 +1,11 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { CreateScheduleDto } from './mongo/dto/create-schedule.dto';
-import { RoomService } from 'src/room/room.service';
-import { SCHEDULE_ALREDY_EXIST, SCHEDULE_NOT_FOUND } from './schedule.constant';
-import { ScheduleMongoRepository } from './mongo/schedule.mongoRepository';
-import { ScheduleRepository } from './core/schedule.repository';
-import { Schedule } from './core/schedule.entity';
-import { IScheduleExtended } from './interfaces/IScheduleExtended';
+import { Inject, Injectable } from '@nestjs/common';
+import { RoomService } from '../room/room.service';
+import { ScheduleMongoRepository } from './repositories/mongo/schedule.mongoRepository';
+import { ScheduleRepository } from './repositories/schedule-repository.interface';
+import { Schedule } from './schedule.entity';
+import Exception from '../exceptions/Exception';
+import { ExceptionCodes } from '../exceptions/codes';
+import { ExceptionMessages } from '../exceptions/messages';
 
 @Injectable()
 export class ScheduleService {
@@ -20,42 +15,62 @@ export class ScheduleService {
     private scheduleRepository: ScheduleRepository,
   ) {}
 
-  async get(dto: CreateScheduleDto): Promise<IScheduleExtended | null> {
-    const room = await this.roomService.isRoomExist(dto.room);
-    return this.scheduleRepository.get({ roomId: room.id, date: dto.date });
+  async get(scheduleData: {
+    room: number;
+    date: Date;
+  }): Promise<Schedule | null> {
+    const room = await this.roomService.isRoomExist({
+      number: scheduleData.room,
+    });
+    return this.scheduleRepository.get({
+      room: room.id,
+      date: scheduleData.date,
+    });
   }
 
-  async create(dto: CreateScheduleDto): Promise<Schedule> {
-    const room = await this.roomService.isRoomExist(dto.room);
+  async create(scheduleData: { room: number; date: Date }): Promise<Schedule> {
+    const room = await this.roomService.isRoomExist({
+      number: scheduleData.room,
+    });
     const schedule = await this.scheduleRepository.get({
-      roomId: room.id,
-      date: dto.date,
+      room: room.id,
+      date: scheduleData.date,
     });
     if (schedule) {
-      throw new BadRequestException(SCHEDULE_ALREDY_EXIST);
+      throw new Exception(
+        ExceptionCodes.BAD_REQUEST,
+        ExceptionMessages.SCHEDULE_ALREDY_EXIST,
+      );
     }
 
-    return this.scheduleRepository.create({ roomId: room.id, date: dto.date });
+    return this.scheduleRepository.create({
+      room: room.id,
+      date: scheduleData.date,
+    });
   }
 
-  async delete(dto: CreateScheduleDto): Promise<Schedule> {
-    const room = await this.roomService.isRoomExist(dto.room);
-    const deletedDoc = await this.scheduleRepository.delete({
-      roomId: room.id,
-      date: dto.date,
-    });
-    if (!deletedDoc) throw new NotFoundException(SCHEDULE_NOT_FOUND);
+  async delete(id: string): Promise<Schedule> {
+    const deletedDoc = await this.scheduleRepository.delete(id);
+    if (!deletedDoc)
+      throw new Exception(
+        ExceptionCodes.NOT_FOUND,
+        ExceptionMessages.SCHEDULE_NOT_FOUND,
+      );
 
     return deletedDoc;
   }
 
-  async getRoomScheduleByNumber(number: number): Promise<Schedule[]> {
-    const room = await this.roomService.isRoomExist(number);
+  async getRoomSchedule(number: number): Promise<Schedule[]> {
+    const room = await this.roomService.isRoomExist({ number });
 
-    return this.scheduleRepository.getRoomScheduleById(room.id);
+    return this.scheduleRepository.getRoomSchedule(room.id);
   }
 
-  async getAllSchedules(): Promise<IScheduleExtended[]> {
-    return this.scheduleRepository.getAllSchedules();
+  async getSchedules({
+    page,
+    pageSize,
+    sortDirection,
+  }): Promise<{ schedules: Schedule[]; page: number; totalPages: number }> {
+    return this.scheduleRepository.getSchedules(page, pageSize, sortDirection);
   }
 }
