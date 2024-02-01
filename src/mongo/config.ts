@@ -9,10 +9,15 @@ export const getMongoConfig = async (
   };
 };
 
-const getMongoString = (configService: ConfigService) =>
-  'mongodb://' +
-  configService.get('MONGO_HOST') +
-  '/' +
-  configService.get('MONGO_DB') +
-  ':' +
-  configService.get('MONGO_PORT');
+export const getMongoString = (configService: ConfigService, env?: string) => {
+  let PREFIX = '';
+  if (configService.get('NODE_ENV') === 'test') PREFIX = 'TEST_';
+  return (
+    'mongodb://' +
+    configService.get(PREFIX + 'MONGO_HOST') +
+    '/' +
+    configService.get(PREFIX + 'MONGO_DB') +
+    ':' +
+    configService.get(PREFIX + 'MONGO_PORT')
+  );
+};
