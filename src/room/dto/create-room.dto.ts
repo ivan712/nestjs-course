@@ -1,5 +1,5 @@
 import { IsBoolean, IsEnum, IsNumber, IsPositive } from 'class-validator';
-import { RoomAmount, RoomType } from '../../core/room.entity';
+import { RoomAmount, RoomType } from '../room.entity';
 
 export class CreateRoomDto {
   @IsNumber()

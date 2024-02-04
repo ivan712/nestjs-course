@@ -1,16 +1,11 @@
-import {
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
-import { CreateRoomDto } from './mongo/dto/create-room.dto';
-import { ROOM_ALREADY_EXIST, ROOM_NOT_FOUND } from './room.constants';
-import { RoomMongoRepository } from './mongo/room.mongoRepository';
-import { RoomRepository } from './core/room.repository';
-import { Room } from './core/room.entity';
+import { RoomMongoRepository } from './repositories/mongo/room.mongoRepository';
+import { RoomRepository } from './repositories/room.repository.interface';
+import { Room } from './room.entity';
+import Exception from '../exceptions/exception';
+import { ExceptionCodes } from '../exceptions/codes';
+import { ExceptionMessages } from '../exceptions/messages';
 
 @Injectable()
 export class RoomService {
@@ -18,41 +13,70 @@ export class RoomService {
     @Inject(RoomMongoRepository) private roomMongoRepository: RoomRepository,
   ) {}
 
-  async isRoomExist(number: number) {
-    const room = await this.getByNumber(number);
+  async isRoomExist({ id, number }: { id?: string; number?: number }) {
+    let room;
+    if (id) {
+      room = this.roomMongoRepository.getById(id);
+    } else if (number) {
+      room = await this.getByNumber(number);
+    }
     if (!room) {
-      throw new NotFoundException(ROOM_NOT_FOUND);
+      throw new Exception(
+        ExceptionCodes.BAD_REQUEST,
+        ExceptionMessages.ROOM_NOT_FOUND,
+      );
     }
 
     return room;
   }
 
-  async create(dto: CreateRoomDto): Promise<Room> {
-    const room = await this.getByNumber(dto.number);
+  async create(createData: Omit<Room, 'id'>): Promise<Room> {
+    const room = await this.getByNumber(createData.number);
     if (room) {
-      throw new HttpException(ROOM_ALREADY_EXIST, HttpStatus.BAD_REQUEST);
+      throw new Exception(
+        ExceptionCodes.BAD_REQUEST,
+        ExceptionMessages.ROOM_ALREADY_EXIST,
+      );
     }
-    return this.roomMongoRepository.create(dto);
+    return this.roomMongoRepository.create(createData);
   }
 
   async delete(number: number): Promise<Room> {
-    const deletedDoc = await this.roomMongoRepository.delete(number);
-    if (!deletedDoc)
-      throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
+    const deletedRoom = await this.roomMongoRepository.delete(number);
+    if (!deletedRoom)
+      throw new Exception(
+        ExceptionCodes.NOT_FOUND,
+        ExceptionMessages.ROOM_NOT_FOUND,
+      );
 
-    return deletedDoc;
+    return deletedRoom;
   }
 
   async getByNumber(number: number): Promise<Room> {
     return this.roomMongoRepository.getByNumber(number);
   }
 
-  async getAllRooms(): Promise<Room[]> {
-    return this.roomMongoRepository.getAllRooms();
+  async getRooms({
+    page,
+    pageSize,
+    sortDirection,
+  }: {
+    page: number;
+    pageSize: number;
+    sortDirection?: string;
+  }) {
+    return this.roomMongoRepository.getRooms(page, pageSize, sortDirection);
   }
 
-  async update(dto: CreateRoomDto): Promise<Room> {
-    await this.isRoomExist(dto.number);
-    return this.roomMongoRepository.update(dto);
+  async update(updateData: Room): Promise<Room> {
+    const updatedRoom = await this.isRoomExist({ id: updateData.id });
+    if (updatedRoom.number !== updateData.number) {
+      if (await this.getByNumber(updateData.number))
+        throw new Exception(
+          ExceptionCodes.BAD_REQUEST,
+          ExceptionMessages.ROOM_ALREADY_EXIST,
+        );
+    }
+    return this.roomMongoRepository.update(updateData);
   }
 }
