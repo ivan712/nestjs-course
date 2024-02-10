@@ -13,6 +13,7 @@ import { ScheduleService } from './schedule.service';
 import { CreateScheduleDto } from './create-schedule.dto';
 import { HttpExceptionFilter } from '../exceptions/http-exception.filter';
 import { PaginationDto } from '../shared/pagination.dto';
+import { IdValidationPipe } from '../mongo/id-validation.pipe';
 
 @Controller('schedule')
 @UseFilters(new HttpExceptionFilter())
@@ -25,7 +26,7 @@ export class ScheduleController {
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id', IdValidationPipe) id: string) {
     return this.scheduleService.delete(id);
   }
 

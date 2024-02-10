@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { RoomMongoRepository } from './repositories/mongo/room.mongoRepository';
 import { RoomRepository } from './repositories/room.repository.interface';
 import { Room } from './room.entity';
-import Exception from 'src/exceptions/Exception';
+import Exception from '../exceptions/exception';
 import { ExceptionCodes } from '../exceptions/codes';
 import { ExceptionMessages } from '../exceptions/messages';
 
