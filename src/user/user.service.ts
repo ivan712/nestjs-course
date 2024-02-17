@@ -1,16 +1,13 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { UserMongoRepository } from './mongo/user.mongoRepository';
-import { UserRepository } from './core/user.repository';
-import { RegisterDto } from '../auth/dto/register.dto';
-import { UNAUTHORIZED_USER, USER_ALREADY_EXIST } from './user.constants';
-import { User } from './core/user.entity';
-import { LoginDto } from 'src/auth/dto/login.dto';
+import { Inject, Injectable } from '@nestjs/common';
+import { UserMongoRepository } from './repositories/mongo/user.repository';
+import { UserRepository } from './repositories/user-repository.interface';
+import { User } from './user.entity';
 import { compare } from 'bcryptjs';
+import { IRegisterData } from 'src/auth/interfaces/register-data.interface';
+import { ILoginData } from 'src/auth/interfaces/login-data.interface';
+import Exception from 'src/exceptions/exception';
+import { ExceptionMessages } from 'src/exceptions/messages';
+import { ExceptionCodes } from 'src/exceptions/codes';
 
 @Injectable()
 export class UserService {
@@ -18,20 +15,32 @@ export class UserService {
     @Inject(UserMongoRepository) private userRepository: UserRepository,
   ) {}
 
-  async create(dto: RegisterDto): Promise<User> {
-    const user = await this.userRepository.getByEmail(dto.email);
-    if (user) throw new BadRequestException(USER_ALREADY_EXIST);
-    return await this.userRepository.create(dto);
+  async create(registerData: IRegisterData): Promise<User> {
+    const user = await this.userRepository.getByEmail(registerData.email);
+    if (user)
+      throw new Exception(
+        ExceptionCodes.BAD_REQUEST,
+        ExceptionMessages.USER_ALREADY_EXIST,
+      );
+    return this.userRepository.create(registerData);
   }
 
   async getByEmail(email: string): Promise<User> {
     return this.userRepository.getByEmail(email);
   }
 
-  async validateUser(dto: LoginDto): Promise<void> {
-    const user = await this.getByEmail(dto.email);
-    if (!user) throw new UnauthorizedException(UNAUTHORIZED_USER);
-    const isPasswordValid = await compare(dto.password, user.password);
-    if (!isPasswordValid) throw new UnauthorizedException(UNAUTHORIZED_USER);
+  async validateUser(loginData: ILoginData): Promise<void> {
+    const user = await this.getByEmail(loginData.email);
+    if (!user)
+      throw new Exception(
+        ExceptionCodes.NOT_FOUND,
+        ExceptionMessages.USER_NOT_FOUND,
+      );
+    const isPasswordValid = await compare(loginData.password, user.password);
+    if (!isPasswordValid)
+      throw new Exception(
+        ExceptionCodes.BAD_REQUEST,
+        ExceptionMessages.UNAUTHORIZED_USER,
+      );
   }
 }

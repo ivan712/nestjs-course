@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
-import { RegisterDto } from './dto/register.dto';
 import { genSalt, hash } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { LoginDto } from './dto/login.dto';
-import { User } from 'src/user/core/user.entity';
-import { AccessToken } from './interfaces/accessToken.interface';
+import { User } from 'src/user/user.entity';
+import { IAccessToken } from './interfaces/access-token.interface';
+import { IRegisterData } from './interfaces/register-data.interface';
+import { ILoginData } from './interfaces/login-data.interface';
 
 @Injectable()
 export class AuthService {
@@ -14,17 +14,17 @@ export class AuthService {
     @Inject(JwtService) private readonly jwtService: JwtService,
   ) {}
 
-  async register(dto: RegisterDto): Promise<User> {
+  async register(registerData: IRegisterData): Promise<User> {
     const salt = await genSalt(10);
-    const passwordHash = await hash(dto.password, salt);
-    dto.password = passwordHash;
-    return this.userService.create(dto);
+    const passwordHash = await hash(registerData.password, salt);
+    registerData.password = passwordHash;
+    return this.userService.create(registerData);
   }
 
-  async login(dto: LoginDto): Promise<AccessToken> {
-    await this.userService.validateUser(dto);
+  async login(loginData: ILoginData): Promise<IAccessToken> {
+    await this.userService.validateUser(loginData);
 
-    const payload = { email: dto.email };
+    const payload = { email: loginData.email };
     return {
       accessToken: await this.jwtService.signAsync(payload),
     };

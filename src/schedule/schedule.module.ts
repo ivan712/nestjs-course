@@ -11,7 +11,7 @@ import {
   RoomModel,
   RoomModelSchema,
 } from '../room/repositories/mongo/room.model';
-import { RoomMongoRepository } from '../room/repositories/mongo/room.mongoRepository';
+import { RoomMongoRepository } from '../room/repositories/mongo/room.repository';
 import { ScheduleMongoRepository } from './repositories/mongo/schedule.mongoRepository';
 
 @Module({

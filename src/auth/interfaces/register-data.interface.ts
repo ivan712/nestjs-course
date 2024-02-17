@@ -1,16 +1,9 @@
 import { IsEmail, IsEnum, IsPhoneNumber, IsString } from 'class-validator';
 import { Role } from 'src/user/user.entity';
 
-export class RegisterDto {
-  @IsEmail()
+export interface IRegisterData {
   email: string;
-
-  @IsPhoneNumber()
   phoneNumber: string;
-
-  @IsEnum(Role)
   role: Role;
-
-  @IsString()
   password: string;
 }

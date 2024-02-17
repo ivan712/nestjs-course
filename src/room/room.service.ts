@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { RoomMongoRepository } from './repositories/mongo/room.mongoRepository';
+import { RoomMongoRepository } from './repositories/mongo/room.repository';
 import { RoomRepository } from './repositories/room.repository.interface';
 import { Room } from './room.entity';
 import Exception from '../exceptions/exception';

@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { RoomService } from './room.service';
 import { RoomController } from './room.controller';
 import { RoomModel, RoomModelSchema } from './repositories/mongo/room.model';
-import { RoomMongoRepository } from './repositories/mongo/room.mongoRepository';
+import { RoomMongoRepository } from './repositories/mongo/room.repository';
 import {
   ScheduleModel,
   ScheduleModelSchema,
