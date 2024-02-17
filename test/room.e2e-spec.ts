@@ -13,8 +13,8 @@ const roomNumber = 1;
 
 const createTestDto: CreateRoomDto = {
   number: roomNumber,
-  roomType: 'BUDGET' as RoomType,
-  roomsAmount: 2 as RoomAmount,
+  roomType: RoomType.BUDGET,
+  roomsAmount: RoomAmount.TWO,
   hasSeeView: false,
 };
 
