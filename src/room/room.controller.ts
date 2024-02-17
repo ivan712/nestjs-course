@@ -8,21 +8,21 @@ import {
   Post,
   Put,
   Query,
-  UseFilters,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { RoomService } from './room.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
-import { HttpExceptionFilter } from '../exceptions/http-exception.filter';
 import { PaginationDto } from '../shared/pagination.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/guards/roles.decorator';
 import { Role } from '../user/user.entity';
+import { ExceptionInterceptor } from 'src/exceptions/exception.interceptor';
 
 @Controller('room')
-@UseFilters(new HttpExceptionFilter())
+@UseInterceptors(ExceptionInterceptor)
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
