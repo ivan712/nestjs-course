@@ -8,15 +8,16 @@ import {
   Post,
   Query,
   UseFilters,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 import { CreateScheduleDto } from './create-schedule.dto';
-import { HttpExceptionFilter } from '../exceptions/http-exception.filter';
 import { PaginationDto } from '../shared/pagination.dto';
 import { IdValidationPipe } from '../mongo/id-validation.pipe';
+import { ExceptionInterceptor } from 'src/exceptions/exception.interceptor';
 
 @Controller('schedule')
-@UseFilters(new HttpExceptionFilter())
+@UseInterceptors(ExceptionInterceptor)
 export class ScheduleController {
   constructor(private readonly scheduleService: ScheduleService) {}
 

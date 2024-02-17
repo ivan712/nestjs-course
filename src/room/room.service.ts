@@ -43,11 +43,14 @@ export class RoomService {
 
   async delete(number: number): Promise<Room> {
     const deletedRoom = await this.roomMongoRepository.delete(number);
-    if (!deletedRoom)
-      throw new Exception(
+    if (!deletedRoom) {
+      const exc = new Exception(
         ExceptionCodes.NOT_FOUND,
         ExceptionMessages.ROOM_NOT_FOUND,
       );
+      console.log('inst of extt', exc instanceof Exception);
+      throw exc;
+    }
 
     return deletedRoom;
   }

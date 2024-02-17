@@ -9,15 +9,16 @@ import {
   Put,
   Query,
   UseFilters,
+  UseInterceptors,
 } from '@nestjs/common';
 import { RoomService } from './room.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
-import { HttpExceptionFilter } from '../exceptions/http-exception.filter';
 import { PaginationDto } from '../shared/pagination.dto';
+import { ExceptionInterceptor } from 'src/exceptions/exception.interceptor';
 
 @Controller('room')
-@UseFilters(new HttpExceptionFilter())
+@UseInterceptors(ExceptionInterceptor)
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
