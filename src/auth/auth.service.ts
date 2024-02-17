@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 import { genSalt, hash } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/user/user.entity';
+import { User } from '../user/user.entity';
 import { IAccessToken } from './interfaces/access-token.interface';
 import { IRegisterData } from './interfaces/register-data.interface';
 import { ILoginData } from './interfaces/login-data.interface';
@@ -10,7 +10,7 @@ import { ILoginData } from './interfaces/login-data.interface';
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(UserService) private userService: UserService,
+    @Inject(UserService) private readonly userService: UserService,
     @Inject(JwtService) private readonly jwtService: JwtService,
   ) {}
 

@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { UserModule } from 'src/user/user.module';
-import { UserMongoRepository } from 'src/user/repositories/mongo/user.repository';
+import { UserModule } from '../user/user.module';
+import { UserMongoRepository } from '../user/repositories/mongo/user.repository';
 import {
   UserModel,
   UserModelSchema,
-} from 'src/user/repositories/mongo/user.model';
+} from '../user/repositories/mongo/user.model';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';

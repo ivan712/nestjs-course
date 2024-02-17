@@ -8,6 +8,8 @@ import {
   ScheduleModel,
   ScheduleModelSchema,
 } from '../schedule/repositories/mongo/schedule.model';
+import { UserService } from '../user/user.service';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -15,6 +17,7 @@ import {
       { name: RoomModel.name, schema: RoomModelSchema },
       { name: ScheduleModel.name, schema: ScheduleModelSchema },
     ]),
+    UserModule,
   ],
   providers: [RoomService, RoomMongoRepository],
   controllers: [RoomController],

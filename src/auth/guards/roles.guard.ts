@@ -5,9 +5,9 @@ import {
   Inject,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Role } from 'src/user/user.entity';
+import { Role } from '../../user/user.entity';
 import { ROLES_KEY } from './roles.decorator';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../../user/user.service';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -24,10 +24,9 @@ export class RolesGuard implements CanActivate {
     if (!requiredRoles) {
       return true;
     }
-    const email = context.switchToHttp().getRequest().user; //под вопросом, правильно ли извлёк
+    const email = context.switchToHttp().getRequest().user;
     const user = await this.userService.getByEmail(email);
 
-    console.log(typeof user.role);
     return requiredRoles.some((role) => user.role === role);
   }
 }

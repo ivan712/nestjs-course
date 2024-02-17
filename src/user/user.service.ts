@@ -3,11 +3,11 @@ import { UserMongoRepository } from './repositories/mongo/user.repository';
 import { UserRepository } from './repositories/user-repository.interface';
 import { User } from './user.entity';
 import { compare } from 'bcryptjs';
-import { IRegisterData } from 'src/auth/interfaces/register-data.interface';
-import { ILoginData } from 'src/auth/interfaces/login-data.interface';
-import Exception from 'src/exceptions/exception';
-import { ExceptionMessages } from 'src/exceptions/messages';
-import { ExceptionCodes } from 'src/exceptions/codes';
+import { IRegisterData } from '../auth/interfaces/register-data.interface';
+import { ILoginData } from '../auth/interfaces/login-data.interface';
+import Exception from '../exceptions/exception';
+import { ExceptionMessages } from '../exceptions/messages';
+import { ExceptionCodes } from '../exceptions/codes';
 
 @Injectable()
 export class UserService {
