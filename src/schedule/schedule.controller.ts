@@ -18,7 +18,8 @@ import { Roles } from '../auth/guards/roles.decorator';
 import { Role } from '../user/user.entity';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
-import { ExceptionInterceptor } from 'src/exceptions/exception.interceptor';
+import { ExceptionInterceptor } from '../exceptions/exception.interceptor';
+import { BookingStatisticDto } from './booking-statistic.dto';
 
 @Controller('schedule')
 @UseInterceptors(ExceptionInterceptor)
@@ -46,5 +47,10 @@ export class ScheduleController {
   @Get('findByRoom/:number')
   async getByRoom(@Param('number', ParseIntPipe) number: number) {
     return this.scheduleService.getRoomSchedule(number);
+  }
+
+  @Get('bookingStatistic')
+  async getStatistic(@Query() query: BookingStatisticDto) {
+    return this.scheduleService.getStatisticByMonth(query.month, query.year);
   }
 }

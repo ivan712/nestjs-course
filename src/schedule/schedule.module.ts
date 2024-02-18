@@ -15,7 +15,7 @@ import { RoomMongoRepository } from '../room/repositories/mongo/room.repository'
 import { ScheduleMongoRepository } from './repositories/mongo/schedule.mongoRepository';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
-import { UserModule } from 'src/user/user.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [

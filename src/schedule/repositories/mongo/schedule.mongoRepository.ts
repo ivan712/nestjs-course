@@ -89,4 +89,43 @@ export class ScheduleMongoRepository
 
     return { schedules, page, totalPages };
   }
+
+  async getBookingStatisticByMonth(
+    month: number,
+    year: number,
+  ): Promise<{ roomNumber: number; books: number }> {
+    const data = await this.model.aggregate([
+      {
+        $match: {
+          date: {
+            $gte: new Date(year, month - 1, 1),
+            $lt: new Date(year, month, 1),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$room',
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: 'roommodels',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'room',
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          roomNumber: { $arrayElemAt: ['$room.number', 0] },
+          books: '$count',
+        },
+      },
+    ]);
+
+    return data as unknown as { roomNumber: number; books: number };
+  }
 }

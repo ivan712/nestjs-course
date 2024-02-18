@@ -14,7 +14,7 @@ export class ExceptionInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       catchError((error) => {
-        if (!(error instanceof Exception)) {
+        if (!error?.isBusinessLogicError) {
           throw error;
         }
 

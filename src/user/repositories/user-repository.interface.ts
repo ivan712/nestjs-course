@@ -1,5 +1,5 @@
 import { User } from '../user.entity';
-import { IRegisterData } from 'src/auth/interfaces/register-data.interface';
+import { IRegisterData } from '../../auth/interfaces/register-data.interface';
 
 export interface UserRepository {
   create(registerData: IRegisterData): Promise<User>;

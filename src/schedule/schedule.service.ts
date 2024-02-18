@@ -73,4 +73,11 @@ export class ScheduleService {
   }): Promise<{ schedules: Schedule[]; page: number; totalPages: number }> {
     return this.scheduleRepository.getSchedules(page, pageSize, sortDirection);
   }
+
+  async getStatisticByMonth(
+    month: number,
+    year: number,
+  ): Promise<{ roomNumber: number; books: number }> {
+    return this.scheduleRepository.getBookingStatisticByMonth(month, year);
+  }
 }

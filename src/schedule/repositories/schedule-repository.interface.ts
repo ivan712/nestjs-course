@@ -14,4 +14,6 @@ export interface ScheduleRepository {
     pageSize: number,
     sortDirection: string,
   ): Promise<{ schedules: Schedule[]; page: number; totalPages: number }>;
+
+  getBookingStatisticByMonth(month: number, year: number): Promise<any>;
 }

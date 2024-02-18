@@ -19,7 +19,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/guards/roles.decorator';
 import { Role } from '../user/user.entity';
-import { ExceptionInterceptor } from 'src/exceptions/exception.interceptor';
+import { ExceptionInterceptor } from '../exceptions/exception.interceptor';
 
 @Controller('room')
 @UseInterceptors(ExceptionInterceptor)

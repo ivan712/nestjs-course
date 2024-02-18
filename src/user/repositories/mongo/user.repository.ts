@@ -4,7 +4,7 @@ import { UserModel, UserModelDocument } from './user.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../../user.entity';
 import { Injectable } from '@nestjs/common';
-import { IRegisterData } from 'src/auth/interfaces/register-data.interface';
+import { IRegisterData } from '../../../auth/interfaces/register-data.interface';
 
 @Injectable()
 export class UserMongoRepository implements UserRepository {

@@ -1,20 +1,20 @@
 import { ExceptionCodes } from './codes';
 import { ExceptionMessages } from './messages';
 
-export default class Exception extends Error {
+export default class Exception {
   public message: string;
 
   public code: number;
+
+  public isBusinessLogicError: boolean;
 
   public constructor(
     code = ExceptionCodes.INTERNAL_SERVER_ERROR,
     message = ExceptionMessages.INTERNAL_SERVER_ERROR,
   ) {
-    super(message);
+    this.isBusinessLogicError = true;
     this.message = message;
     this.code = code;
-
-    Object.setPrototypeOf(this, Exception.prototype);
   }
 
   public getCode() {
