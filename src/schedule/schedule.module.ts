@@ -11,11 +11,15 @@ import {
   RoomModel,
   RoomModelSchema,
 } from '../room/repositories/mongo/room.model';
-import { RoomMongoRepository } from '../room/repositories/mongo/room.mongoRepository';
+import { RoomMongoRepository } from '../room/repositories/mongo/room.repository';
 import { ScheduleMongoRepository } from './repositories/mongo/schedule.mongoRepository';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
+    UserModule,
     MongooseModule.forFeature([
       { name: RoomModel.name, schema: RoomModelSchema },
       { name: ScheduleModel.name, schema: ScheduleModelSchema },
@@ -26,6 +30,8 @@ import { ScheduleMongoRepository } from './repositories/mongo/schedule.mongoRepo
     RoomService,
     RoomMongoRepository,
     ScheduleMongoRepository,
+    RolesGuard,
+    JwtAuthGuard,
   ],
   controllers: [ScheduleController],
 })

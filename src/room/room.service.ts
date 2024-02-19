@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { RoomMongoRepository } from './repositories/mongo/room.mongoRepository';
+import { RoomMongoRepository } from './repositories/mongo/room.repository';
 import { RoomRepository } from './repositories/room.repository.interface';
 import { Room } from './room.entity';
 import Exception from '../exceptions/exception';
@@ -43,11 +43,12 @@ export class RoomService {
 
   async delete(number: number): Promise<Room> {
     const deletedRoom = await this.roomMongoRepository.delete(number);
-    if (!deletedRoom)
+    if (!deletedRoom) {
       throw new Exception(
         ExceptionCodes.NOT_FOUND,
         ExceptionMessages.ROOM_NOT_FOUND,
       );
+    }
 
     return deletedRoom;
   }
