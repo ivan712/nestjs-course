@@ -38,6 +38,7 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "sharp": "^0.33.2",
+    "telegraf": "^4.15.3",
     "ts-interface-keys-transformer": "^2.3.2"
   },
   "devDependencies": {
