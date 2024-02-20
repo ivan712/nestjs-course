@@ -6,10 +6,13 @@ export default class Exception {
 
   public code: number;
 
+  public isBusinessLogicError: boolean;
+
   public constructor(
     code = ExceptionCodes.INTERNAL_SERVER_ERROR,
     message = ExceptionMessages.INTERNAL_SERVER_ERROR,
   ) {
+    this.isBusinessLogicError = true;
     this.message = message;
     this.code = code;
   }
